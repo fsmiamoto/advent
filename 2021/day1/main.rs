@@ -1,20 +1,38 @@
-#![feature(stdin_forwarders)]
 use std::io;
-use std::str::FromStr;
+use std::io::BufRead;
 
 fn main() {
     let mut increased = 0;
     let mut previous: Option<u32> = None;
-    io::stdin().lines().into_iter().for_each(|l| {
-        // ignoring all errors :D
-        let line = l.unwrap();
-        let current = u32::from_str(String::from(line).as_str()).unwrap();
+
+    let stdin = io::stdin();
+
+    let values: Vec<u32> = stdin
+        .lock()
+        .lines()
+        .map(|x| x.unwrap().parse::<u32>().unwrap())
+        .collect();
+
+    for value in &values {
         if let Some(p) = previous {
-            if p <= current {
+            if p <= *value {
                 increased += 1;
             }
         }
-        previous = Some(current)
-    });
-    println!("{}", increased);
+        previous = Some(*value);
+    }
+
+    let size = values.len();
+
+    let mut part_b = 0;
+    for i in 3..size {
+        let a = values[i - 3] + values[i - 2] + values[i - 1];
+        let b = values[i - 2] + values[i - 1] + values[i];
+        if b > a {
+            part_b += 1;
+        }
+    }
+
+    println!("Part A: {}", increased);
+    println!("Part B: {}", part_b);
 }
